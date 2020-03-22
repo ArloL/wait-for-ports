@@ -58,7 +58,7 @@ jobs:
       uses: DeLaGuardo/setup-graalvm@2.0
       with:
         graalvm-version: '20.0.0.java11'
-    - run: gu install native-image
+    - run: call gu install native-image
     - run: choco install graalvm --version=20.0.0 --no-progress
     - name: Cache Maven packages
       uses: actions/cache@v1
