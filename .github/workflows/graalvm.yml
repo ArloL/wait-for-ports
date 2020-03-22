@@ -21,7 +21,7 @@ jobs:
         ./mvnw --batch-mode package
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
-  	- uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v1
       with:
         name: wait-for-ports artifacts from ${{runner.os}} build
         path: target/artifacts
@@ -71,7 +71,7 @@ jobs:
         .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml package
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
-  	- uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v1
       with:
         name: wait-for-ports artifacts from ${{runner.os}} build
         path: target/artifacts
