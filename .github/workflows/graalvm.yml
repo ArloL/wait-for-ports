@@ -24,6 +24,12 @@ jobs:
         export JAVA_HOME="$(pwd)/graalvm-ce-java11-20.0.0"
         ${JAVA_HOME}/bin/gu install native-image
         ./mvnw --batch-mode package
+        mkdir target/artifacts
+        cp target/wait-for-ports-* target/artifacts
+  	- uses: actions/upload-artifact@v1
+      with:
+        name: Package
+        path: target/artifacts
   windows:
     runs-on: windows-latest
     env:
