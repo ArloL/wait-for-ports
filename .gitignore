@@ -1,4 +1,5 @@
-HELP.md
+.mvn/environment.config
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
