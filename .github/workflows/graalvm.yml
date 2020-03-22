@@ -55,6 +55,12 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - run: choco install graalvm --version=20.0.0 --no-progress
+    - name: Cache Maven packages
+      uses: actions/cache@v1
+      with:
+        path: .m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
       shell: cmd
       env:
