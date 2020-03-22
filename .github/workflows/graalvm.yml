@@ -28,7 +28,7 @@ jobs:
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
       with:
-        name: Package
+        name: wait-for-ports
         path: target/artifacts
   windows:
     runs-on: windows-latest
