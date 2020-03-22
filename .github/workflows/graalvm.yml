@@ -54,11 +54,6 @@ jobs:
       VCVARS_BAT: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat
     steps:
     - uses: actions/checkout@v1
-    - name: Setup GraalVM environment
-      uses: DeLaGuardo/setup-graalvm@2.0
-      with:
-        graalvm-version: '20.0.0.java11'
-    - run: call gu install native-image
     - run: choco install graalvm --version=20.0.0 --no-progress
     - name: Cache Maven packages
       uses: actions/cache@v1
