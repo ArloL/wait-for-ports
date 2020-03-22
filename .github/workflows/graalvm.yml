@@ -73,7 +73,7 @@ jobs:
       run: |
         call "%JAVA_HOME%\bin\gu" install native-image
         call "%VCVARS_BAT%"
-        .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml package
+        call .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml package
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
