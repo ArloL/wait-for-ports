@@ -43,7 +43,9 @@ jobs:
         tar xzf graalvm-ce-java11-linux-amd64-20.0.0.tar.gz
         export JAVA_HOME="$(pwd)/graalvm-ce-java11-20.0.0"
         ${JAVA_HOME}/bin/gu install native-image
+        sudo apt-get install upx-ucl
         ./mvnw --batch-mode package
+        upx --brute target/wait-for-ports-linux-*
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
@@ -57,6 +59,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - run: choco install graalvm --version=20.0.0 --no-progress
+    - run: choco install upx --version=3.96 --no-progress
     - name: Cache Maven packages
       uses: actions/cache@v1
       with:
@@ -71,6 +74,7 @@ jobs:
         call "%JAVA_HOME%\bin\gu" install native-image
         call "%VCVARS_BAT%"
         call .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml package
+        upx --brute target/newlinechecker-windows-*
         mkdir target\artifacts
         copy target\wait-for-ports-* target\artifacts
     - uses: actions/upload-artifact@v1
