@@ -81,3 +81,28 @@ jobs:
       with:
         name: wait-for-ports artifacts from ${{runner.os}} build
         path: target/artifacts
+  deploy:
+    needs: [macos, ubuntu, windows]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '11'
+    - name: Cache Maven packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: Publish to GitHub Packages Apache Maven
+      run: |
+        ./mvnw \
+          --batch-mode \
+          --settings ./.mvn/github-packages-settings.xml \
+          -Dsha1="${GITHUB_SHA}" \
+          -Drevision="${GITHUB_SHA}" \
+          -DaltDeploymentRepository="github::default::https://maven.pkg.github.com/${GITHUB_REPOSITORY}" \
+          deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
