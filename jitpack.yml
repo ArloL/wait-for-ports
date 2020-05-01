@@ -1,0 +1,2 @@
+install:
+   - ./mvnw install -DskipTests -Dsha1="${GIT_COMMIT}" -Drevision="${VERSION}"
