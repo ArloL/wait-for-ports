@@ -73,6 +73,34 @@
                 <platform>windows</platform>
             </properties>
         </profile>
+        <profile>
+            <id>graal</id>
+            <activation>
+                <file>
+                    <exists>${env.JAVA_HOME}/GRAALVM-README.md</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.ArloL</groupId>
+                        <artifactId>native-image-maven-plugin</artifactId>
+                        <version>482856dfa2</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>native-image</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <imageName>${project.artifactId}-${platform}-${project.version}</imageName>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <build>
@@ -141,22 +169,6 @@
                             <valueFile>src/main/java/io/github/arlol/waitforports/WaitForPorts.java</valueFile>
                         </replacement>
                     </replacements>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.ArloL</groupId>
-                <artifactId>native-image-maven-plugin</artifactId>
-                <version>482856dfa2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>native-image</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <imageName>${project.artifactId}-${platform}-${project.version}</imageName>
                 </configuration>
             </plugin>
         </plugins>
