@@ -14,6 +14,13 @@
 	<groupId>io.github.arlol</groupId>
 	<artifactId>wait-for-ports</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+    
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
 
 	<properties>
 		<java.version>11</java.version>
