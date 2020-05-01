@@ -19,7 +19,11 @@ jobs:
         export JAVA_HOME="$(pwd)/graalvm-ce-java11-20.0.0/Contents/Home/"
         ${JAVA_HOME}/bin/gu install native-image
         brew install upx
-        ./mvnw --batch-mode package
+        ./mvnw \
+          --batch-mode \
+          -Dsha1="${GITHUB_SHA}" \
+          -Drevision="${GITHUB_SHA}" \
+          package
         upx --brute target/wait-for-ports-mac-*
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
@@ -44,7 +48,11 @@ jobs:
         export JAVA_HOME="$(pwd)/graalvm-ce-java11-20.0.0"
         ${JAVA_HOME}/bin/gu install native-image
         sudo apt-get install upx-ucl
-        ./mvnw --batch-mode package
+        ./mvnw \
+          --batch-mode \
+          -Dsha1="${GITHUB_SHA}" \
+          -Drevision="${GITHUB_SHA}" \
+          package
         upx --brute target/wait-for-ports-linux-*
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
@@ -73,7 +81,7 @@ jobs:
       run: |
         call "%JAVA_HOME%\bin\gu" install native-image
         call "%VCVARS_BAT%"
-        call .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml package
+        call .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml -Dsha1="%GITHUB_SHA%" -Drevision="%GITHUB_SHA%" package
         upx --brute target/wait-for-ports-windows-*
         mkdir target\artifacts
         copy target\wait-for-ports-* target\artifacts
