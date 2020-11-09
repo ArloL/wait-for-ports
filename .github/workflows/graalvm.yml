@@ -1,6 +1,12 @@
 name: GraalVM CI
 
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - master
+  schedule:
+    - cron: '26 9 13 * *'
+
 jobs:
   macos:
     runs-on: macos-latest
