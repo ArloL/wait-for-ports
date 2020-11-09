@@ -193,3 +193,30 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         release_id: ${{ steps.create_release.outputs.id }}
+  deploy:
+    needs: [version, release]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '11'
+    - name: Cache Maven packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: Publish to GitHub Packages Apache Maven
+      env:
+        REVISION: ${{ needs.version.outputs.new_version }}
+      run: |
+        ./mvnw \
+          --batch-mode \
+          --settings ./.mvn/github-packages-settings.xml \
+          -Dsha1="${GITHUB_SHA}" \
+          -Drevision="${REVISION}" \
+          -DaltDeploymentRepository="github::default::https://maven.pkg.github.com/${GITHUB_REPOSITORY}" \
+          deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
