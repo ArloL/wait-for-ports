@@ -42,7 +42,7 @@ jobs:
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
       with:
-        name: wait-for-ports artifacts from ${{runner.os}} build
+        name: wait-for-ports-artifacts-${{ github.job }}-${{ github.sha }}
         path: target/artifacts
   linux:
     runs-on: ubuntu-latest
@@ -78,7 +78,7 @@ jobs:
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
       with:
-        name: wait-for-ports artifacts from ${{runner.os}} build
+        name: wait-for-ports-artifacts-${{ github.job }}-${{ github.sha }}
         path: target/artifacts
   windows:
     runs-on: windows-latest
@@ -113,7 +113,7 @@ jobs:
         copy target\wait-for-ports-* target\artifacts
     - uses: actions/upload-artifact@v1
       with:
-        name: wait-for-ports artifacts from ${{runner.os}} build
+        name: wait-for-ports-artifacts-${{ github.job }}-${{ github.sha }}
         path: target/artifacts
   deploy:
     needs: [macos, linux, windows]
