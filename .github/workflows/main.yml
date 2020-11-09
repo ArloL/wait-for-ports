@@ -209,6 +209,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Publish to GitHub Packages Apache Maven
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REVISION: ${{ needs.version.outputs.new_version }}
       run: |
         ./mvnw \
@@ -218,5 +219,3 @@ jobs:
           -Drevision="${REVISION}" \
           -DaltDeploymentRepository="github::default::https://maven.pkg.github.com/${GITHUB_REPOSITORY}" \
           deploy
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
