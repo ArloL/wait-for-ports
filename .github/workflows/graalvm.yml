@@ -107,7 +107,7 @@ jobs:
       run: |
         call "%JAVA_HOME%\bin\gu" install native-image
         call "%VCVARS_BAT%"
-        call .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml -Dsha1="%GITHUB_SHA%" -Drevision="%REVISION%" package
+        call .\mvnw --batch-mode -Dsha1="%GITHUB_SHA%" -Drevision="%REVISION%" --settings .\.mvn\github-actions-windows-maven-settings.xml  package
         .\target\wait-for-ports-windows-%REVISION%.exe
         upx --brute target/wait-for-ports-windows-%REVISION%.exe
         .\target\wait-for-ports-windows-%REVISION%.exe
