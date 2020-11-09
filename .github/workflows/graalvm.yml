@@ -22,6 +22,8 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
+      env:
+        REVISION: ${{ github.sha }}
       run: |
         wget -q https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.0.0/graalvm-ce-java11-darwin-amd64-20.0.0.tar.gz
         tar xzf graalvm-ce-java11-darwin-amd64-20.0.0.tar.gz
@@ -33,7 +35,7 @@ jobs:
           -Dsha1="${GITHUB_SHA}" \
           -Drevision="${GITHUB_SHA}" \
           package
-        upx --brute target/wait-for-ports-macos-*
+        upx --brute "target/wait-for-ports-macos-${REVISION}"
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
@@ -54,6 +56,8 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
+      env:
+        REVISION: ${{ github.sha }}
       run: |
         wget -q https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.0.0/graalvm-ce-java11-linux-amd64-20.0.0.tar.gz
         tar xzf graalvm-ce-java11-linux-amd64-20.0.0.tar.gz
@@ -63,9 +67,9 @@ jobs:
         ./mvnw \
           --batch-mode \
           -Dsha1="${GITHUB_SHA}" \
-          -Drevision="${GITHUB_SHA}" \
+          -Drevision="${REVISION}" \
           package
-        upx --brute target/wait-for-ports-linux-*
+        upx --brute target/wait-for-ports-linux-${REVISION}
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
@@ -93,11 +97,12 @@ jobs:
       shell: cmd
       env:
         JAVA_HOME: C:\Program Files\GraalVM\graalvm-ce-java11-20.0.0
+        REVISION: ${{ github.sha }}
       run: |
         call "%JAVA_HOME%\bin\gu" install native-image
         call "%VCVARS_BAT%"
-        call .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml -Dsha1="%GITHUB_SHA%" -Drevision="%GITHUB_SHA%" package
-        upx --brute target/wait-for-ports-windows-*
+        call .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml -Dsha1="%GITHUB_SHA%" -Drevision="%REVISION%" package
+        upx --brute target/wait-for-ports-windows-%REVISION%.exe
         mkdir target\artifacts
         copy target\wait-for-ports-* target\artifacts
     - uses: actions/upload-artifact@v1
@@ -119,12 +124,14 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Publish to GitHub Packages Apache Maven
+      env:
+        REVISION: ${{ github.sha }}
       run: |
         ./mvnw \
           --batch-mode \
           --settings ./.mvn/github-packages-settings.xml \
           -Dsha1="${GITHUB_SHA}" \
-          -Drevision="${GITHUB_SHA}" \
+          -Drevision="${REVISION}" \
           -DaltDeploymentRepository="github::default::https://maven.pkg.github.com/${GITHUB_REPOSITORY}" \
           deploy
       env:
