@@ -56,7 +56,7 @@ jobs:
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
       with:
-        name: wait-for-ports-artifacts-${{ github.job }}-${{ github.sha }}
+        name: wait-for-ports-artifacts-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
   linux:
     runs-on: ubuntu-latest
@@ -95,7 +95,7 @@ jobs:
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
       with:
-        name: wait-for-ports-artifacts-${{ github.job }}-${{ github.sha }}
+        name: wait-for-ports-artifacts-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
   windows:
     runs-on: windows-latest
@@ -131,7 +131,7 @@ jobs:
         copy target\wait-for-ports-* target\artifacts
     - uses: actions/upload-artifact@v1
       with:
-        name: wait-for-ports-artifacts-${{ github.job }}-${{ github.sha }}
+        name: wait-for-ports-artifacts-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
   release:
     runs-on: ubuntu-latest
@@ -145,9 +145,6 @@ jobs:
     - name: Build project
       working-directory: target
       run: |
-        mv -f wait-for-ports-artifacts-windows-${{ github.sha }} wait-for-ports-windows-${{ needs.version.outputs.new_version }}
-        mv -f wait-for-ports-artifacts-linux-${{ github.sha }} wait-for-ports-linux-${{ needs.version.outputs.new_version }}
-        mv -f wait-for-ports-artifacts-macos-${{ github.sha }} wait-for-ports-macos-${{ needs.version.outputs.new_version }}
         zip -r windows.zip wait-for-ports-windows-${{ needs.version.outputs.new_version }}/
         zip -r linux.zip wait-for-ports-linux-${{ needs.version.outputs.new_version }}/
         zip -r macos.zip wait-for-ports-macos-${{ needs.version.outputs.new_version }}/
