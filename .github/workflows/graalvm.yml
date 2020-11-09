@@ -33,7 +33,7 @@ jobs:
         ./mvnw \
           --batch-mode \
           -Dsha1="${GITHUB_SHA}" \
-          -Drevision="${GITHUB_SHA}" \
+          -Drevision="${REVISION}" \
           package
         "./target/wait-for-ports-macos-${REVISION}"
         upx --brute "target/wait-for-ports-macos-${REVISION}"
