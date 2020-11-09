@@ -31,7 +31,7 @@ jobs:
       with:
         name: wait-for-ports artifacts from ${{runner.os}} build
         path: target/artifacts
-  ubuntu:
+  linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -90,7 +90,7 @@ jobs:
         name: wait-for-ports artifacts from ${{runner.os}} build
         path: target/artifacts
   deploy:
-    needs: [macos, ubuntu, windows]
+    needs: [macos, linux, windows]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
