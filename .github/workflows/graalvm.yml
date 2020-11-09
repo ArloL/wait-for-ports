@@ -35,7 +35,9 @@ jobs:
           -Dsha1="${GITHUB_SHA}" \
           -Drevision="${GITHUB_SHA}" \
           package
+        "./target/wait-for-ports-macos-${REVISION}"
         upx --brute "target/wait-for-ports-macos-${REVISION}"
+        "./target/wait-for-ports-macos-${REVISION}"
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
@@ -69,7 +71,9 @@ jobs:
           -Dsha1="${GITHUB_SHA}" \
           -Drevision="${REVISION}" \
           package
+        "./target/wait-for-ports-linux-${REVISION}"
         upx --brute target/wait-for-ports-linux-${REVISION}
+        "./target/wait-for-ports-linux-${REVISION}"
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
@@ -102,7 +106,9 @@ jobs:
         call "%JAVA_HOME%\bin\gu" install native-image
         call "%VCVARS_BAT%"
         call .\mvnw --batch-mode --settings .\.mvn\github-actions-windows-maven-settings.xml -Dsha1="%GITHUB_SHA%" -Drevision="%REVISION%" package
+        .\target\wait-for-ports-windows-%REVISION%.exe
         upx --brute target/wait-for-ports-windows-%REVISION%.exe
+        .\target\wait-for-ports-windows-%REVISION%.exe
         mkdir target\artifacts
         copy target\wait-for-ports-* target\artifacts
     - uses: actions/upload-artifact@v1
