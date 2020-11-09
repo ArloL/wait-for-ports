@@ -40,14 +40,14 @@
 
     <profiles>
         <profile>
-            <id>mac</id>
+            <id>macos</id>
             <activation>
                 <os>
                     <family>mac</family>
                 </os>
             </activation>
             <properties>
-                <platform>mac</platform>
+                <platform>macos</platform>
             </properties>
         </profile>
         <profile>

@@ -24,7 +24,7 @@ jobs:
           -Dsha1="${GITHUB_SHA}" \
           -Drevision="${GITHUB_SHA}" \
           package
-        upx --brute target/wait-for-ports-mac-*
+        upx --brute target/wait-for-ports-macos-*
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
     - uses: actions/upload-artifact@v1
