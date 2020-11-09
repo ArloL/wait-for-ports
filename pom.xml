@@ -83,9 +83,9 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>com.github.ArloL</groupId>
+                        <groupId>org.graalvm.nativeimage</groupId>
                         <artifactId>native-image-maven-plugin</artifactId>
-                        <version>482856dfa2</version>
+                        <version>20.2.0</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -214,12 +214,5 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>
