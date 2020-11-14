@@ -40,7 +40,7 @@ jobs:
         "./target/wait-for-ports-macos-${REVISION}"
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2.2.1
       with:
         name: wait-for-ports-${{ github.job }}-${{ github.sha }}
         path: target/artifacts
@@ -78,7 +78,7 @@ jobs:
         "./target/wait-for-ports-linux-${REVISION}"
         mkdir target/artifacts
         cp target/wait-for-ports-* target/artifacts
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2.2.1
       with:
         name: wait-for-ports-${{ github.job }}-${{ github.sha }}
         path: target/artifacts
@@ -113,7 +113,7 @@ jobs:
         .\target\wait-for-ports-windows-%REVISION%.exe
         mkdir target\artifacts
         copy target\wait-for-ports-* target\artifacts
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2.2.1
       with:
         name: wait-for-ports-${{ github.job }}-${{ github.sha }}
         path: target/artifacts
