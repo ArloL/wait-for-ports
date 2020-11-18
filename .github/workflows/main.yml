@@ -86,8 +86,7 @@ jobs:
           -Drevision="${REVISION}" \
           verify
         "./target/wait-for-ports-linux-${REVISION}"
-        # see https://github.com/upx/upx/issues/405#issuecomment-688342502
-        # re-add upx when updating from graalvm 20.2.0 to 20.3.0
+        # does not seem to work :(
         # upx --brute "target/wait-for-ports-linux-${REVISION}"
         "./target/wait-for-ports-linux-${REVISION}"
         mkdir target/artifacts
