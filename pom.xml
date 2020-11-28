@@ -242,6 +242,12 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <configuration>
+                        <propertiesEncoding>ISO-8859-1</propertiesEncoding>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.3</version>
                 </plugin>
