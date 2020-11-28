@@ -106,6 +106,41 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforcer-enforce</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <rules>
+                        <requireMavenVersion>
+                            <version>3.5</version>
+                        </requireMavenVersion>
+                        <requirePluginVersions />
+                        <bannedDependencies>
+                            <excludes>
+                                <!-- disallow all system scope dependencies -->
+                                <exclude>*:*:*:*:system</exclude>
+                            </excludes>
+                        </bannedDependencies>
+                        <reactorModuleConvergence />
+                        <banDuplicatePomDependencyVersions />
+                    </rules>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>de.smartics.rules</groupId>
+                        <artifactId>smartics-enforcer-rules</artifactId>
+                        <version>1.0.2</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <version>1.2.5</version>
