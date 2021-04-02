@@ -1,4 +1,4 @@
 jdk:
-  - openjdk11
+- openjdk11
 install:
-   - ./mvnw install -DskipTests -Dsha1="${GIT_COMMIT}" -Drevision="${VERSION}"
+- ./mvnw --batch-mode install -DskipTests -Dsha1="${GIT_COMMIT}" -Drevision="${VERSION}"
