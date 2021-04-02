@@ -5,6 +5,7 @@ on:
   schedule:
   - cron: 50 6 21 * *
 env:
+  ARTIFACT: wait-for-ports
   GRAALVM_VERSION: 21.0.0.2
 
 jobs:
@@ -85,14 +86,14 @@ jobs:
           -Dsha1="${GITHUB_SHA}" \
           -Drevision="${REVISION}" \
           verify
-        "./target/wait-for-ports-macos-${REVISION}"
-        upx --brute "target/wait-for-ports-macos-${REVISION}"
-        "./target/wait-for-ports-macos-${REVISION}"
+        "./target/${{ env.ARTIFACT }}-macos-${REVISION}"
+        upx --brute "target/${{ env.ARTIFACT }}-macos-${REVISION}"
+        "./target/${{ env.ARTIFACT }}-macos-${REVISION}"
         mkdir target/artifacts
-        cp target/wait-for-ports-* target/artifacts
+        cp target/${{ env.ARTIFACT }}-* target/artifacts
     - uses: actions/upload-artifact@v2.2.2
       with:
-        name: wait-for-ports-${{ github.job }}-${{ needs.version.outputs.new_version }}
+        name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
   linux:
     runs-on: ubuntu-latest
@@ -124,14 +125,14 @@ jobs:
           -Dsha1="${GITHUB_SHA}" \
           -Drevision="${REVISION}" \
           verify
-        "./target/wait-for-ports-linux-${REVISION}"
-        ./upx-3.96-amd64_linux/upx "target/wait-for-ports-linux-${REVISION}"
-        "./target/wait-for-ports-linux-${REVISION}"
+        "./target/${{ env.ARTIFACT }}-linux-${REVISION}"
+        ./upx-3.96-amd64_linux/upx "target/${{ env.ARTIFACT }}-linux-${REVISION}"
+        "./target/${{ env.ARTIFACT }}-linux-${REVISION}"
         mkdir target/artifacts
-        cp target/wait-for-ports-* target/artifacts
+        cp target/${{ env.ARTIFACT }}-* target/artifacts
     - uses: actions/upload-artifact@v2.2.2
       with:
-        name: wait-for-ports-${{ github.job }}-${{ needs.version.outputs.new_version }}
+        name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
   windows:
     runs-on: windows-latest
@@ -160,14 +161,14 @@ jobs:
         call "%JAVA_HOME%\bin\gu" install native-image
         call "%VCVARS_BAT%"
         call .\mvnw --batch-mode -Dsha1="%GITHUB_SHA%" -Drevision="%REVISION%" --settings .\.github\github-actions-windows-maven-settings.xml  verify
-        .\target\wait-for-ports-windows-%REVISION%.exe
-        upx --brute target/wait-for-ports-windows-%REVISION%.exe
-        .\target\wait-for-ports-windows-%REVISION%.exe
+        .\target\${{ env.ARTIFACT }}-windows-%REVISION%.exe
+        upx --brute target/${{ env.ARTIFACT }}-windows-%REVISION%.exe
+        .\target\${{ env.ARTIFACT }}-windows-%REVISION%.exe
         mkdir target\artifacts
-        copy target\wait-for-ports-* target\artifacts
+        copy target\${{ env.ARTIFACT }}-* target\artifacts
     - uses: actions/upload-artifact@v2.2.2
       with:
-        name: wait-for-ports-${{ github.job }}-${{ needs.version.outputs.new_version }}
+        name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
   release:
     if: ${{ github.ref == 'refs/heads/master' }}
@@ -182,9 +183,9 @@ jobs:
     - name: Build project
       working-directory: target
       run: |
-        zip -r windows.zip wait-for-ports-windows-${{ needs.version.outputs.new_version }}/
-        zip -r linux.zip wait-for-ports-linux-${{ needs.version.outputs.new_version }}/
-        zip -r macos.zip wait-for-ports-macos-${{ needs.version.outputs.new_version }}/
+        zip -r windows.zip ${{ env.ARTIFACT }}-windows-${{ needs.version.outputs.new_version }}/
+        zip -r linux.zip ${{ env.ARTIFACT }}-linux-${{ needs.version.outputs.new_version }}/
+        zip -r macos.zip ${{ env.ARTIFACT }}-macos-${{ needs.version.outputs.new_version }}/
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -202,7 +203,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/linux.zip
-        asset_name: wait-for-ports-linux-${{ needs.version.outputs.new_version }}.zip
+        asset_name: ${{ env.ARTIFACT }}-linux-${{ needs.version.outputs.new_version }}.zip
         asset_content_type: application/zip
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
@@ -211,7 +212,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/windows.zip
-        asset_name: wait-for-ports-windows-${{ needs.version.outputs.new_version }}.zip
+        asset_name: ${{ env.ARTIFACT }}-windows-${{ needs.version.outputs.new_version }}.zip
         asset_content_type: application/zip
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
@@ -220,7 +221,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/macos.zip
-        asset_name: wait-for-ports-macos-${{ needs.version.outputs.new_version }}.zip
+        asset_name: ${{ env.ARTIFACT }}-macos-${{ needs.version.outputs.new_version }}.zip
         asset_content_type: application/zip
     - uses: eregon/publish-release@v1
       env:
