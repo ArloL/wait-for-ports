@@ -90,7 +90,7 @@ jobs:
           -Drevision="${REVISION}" \
           verify
         "./target/${{ env.ARTIFACT }}-macos-${REVISION}"
-        upx --brute "target/${{ env.ARTIFACT }}-macos-${REVISION}"
+        upx "target/${{ env.ARTIFACT }}-macos-${REVISION}"
         "./target/${{ env.ARTIFACT }}-macos-${REVISION}"
         mkdir target/artifacts
         cp target/${{ env.ARTIFACT }}-* target/artifacts
@@ -172,7 +172,7 @@ jobs:
         call "%VCVARS_BAT%"
         call .\mvnw --batch-mode -Dsha1="%GITHUB_SHA%" -Drevision="%REVISION%" --settings .\.github\github-actions-windows-maven-settings.xml  verify
         .\target\${{ env.ARTIFACT }}-windows-%REVISION%.exe
-        upx --brute target/${{ env.ARTIFACT }}-windows-%REVISION%.exe
+        upx target/${{ env.ARTIFACT }}-windows-%REVISION%.exe
         .\target\${{ env.ARTIFACT }}-windows-%REVISION%.exe
         mkdir target\artifacts
         copy target\${{ env.ARTIFACT }}-* target\artifacts
