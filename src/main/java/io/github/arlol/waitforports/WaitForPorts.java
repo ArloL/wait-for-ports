@@ -1,6 +1,7 @@
 package io.github.arlol.waitforports;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -28,7 +29,11 @@ public class WaitForPorts {
 			if (args.length > 0) {
 				uris = Arrays.asList(args);
 			} else if (Files.isReadable(configFile)) {
-				uris = Files.readAllLines(configFile);
+				try {
+					uris = Files.readAllLines(configFile);
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
 			}
 			Collection<URI> endpoints = uris.stream().map(URI::create).collect(Collectors.toSet());
 			while (!endpoints.isEmpty()) {
@@ -80,7 +85,7 @@ public class WaitForPorts {
 					Thread.sleep(sleepTime);
 				}
 			}
-		} catch (Exception e) {
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
