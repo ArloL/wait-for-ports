@@ -91,9 +91,24 @@ jobs:
           verify
     - name: Test and compress executable
       run: |
-        "./target/${{ env.ARTIFACT }}-macos-${REVISION}"
-        upx "target/${{ env.ARTIFACT }}-macos-${REVISION}"
-        "./target/${{ env.ARTIFACT }}-macos-${REVISION}"
+        expectedOutput="${ARTIFACT} version \"${REVISION}\""
+        firstOutput=$("./target/${ARTIFACT}-macos-${REVISION}" --version)
+        upx "target/${ARTIFACT}-macos-${REVISION}"
+        secondOutput=$("./target/${ARTIFACT}-macos-${REVISION}" --version)
+        if [ "$firstOutput" != "$expectedOutput" ]; then
+          echo "The first output is wrong. Expected:"
+          echo "$expectedOutput"
+          echo "Got:"
+          echo "$firstOutput"
+          exit 1
+        fi
+        if [ "$secondOutput" != "$expectedOutput" ]; then
+          echo "The second output is wrong. Expected:"
+          echo "$expectedOutput"
+          echo "Got:"
+          echo "$secondOutput"
+          exit 1
+        fi
     - name: Move artifacts
       run: |
         mkdir target/artifacts
@@ -137,9 +152,24 @@ jobs:
           verify
     - name: Test and compress executable
       run: |
-        "./target/${{ env.ARTIFACT }}-linux-${REVISION}"
-        ./upx-3.96-amd64_linux/upx "target/${{ env.ARTIFACT }}-linux-${REVISION}"
-        "./target/${{ env.ARTIFACT }}-linux-${REVISION}"
+        expectedOutput="${ARTIFACT} version \"${REVISION}\""
+        firstOutput=$("./target/${ARTIFACT}-linux-${REVISION}" --version)
+        ./upx-3.96-amd64_linux/upx "target/${ARTIFACT}-linux-${REVISION}"
+        secondOutput=$("./target/${ARTIFACT}-linux-${REVISION}" --version)
+        if [ "$firstOutput" != "$expectedOutput" ]; then
+          echo "The first output is wrong. Expected:"
+          echo "$expectedOutput"
+          echo "Got:"
+          echo "$firstOutput"
+          exit 1
+        fi
+        if [ "$secondOutput" != "$expectedOutput" ]; then
+          echo "The second output is wrong. Expected:"
+          echo "$expectedOutput"
+          echo "Got:"
+          echo "$secondOutput"
+          exit 1
+        fi
     - name: Move artifacts
       run: |
         mkdir target/artifacts
@@ -169,6 +199,8 @@ jobs:
         java: java${{ env.JAVA_VERSION }}
     - name: Install native-image module
       run: '& "$env:JAVA_HOME\bin\gu" install native-image'
+    - name: Remove WindowsImageHeapProviderFeature
+      run: '& 7z d "$env:JAVA_HOME\lib\svm\builder\svm.jar" com/oracle/svm/core/windows/WindowsImageHeapProviderFeature.class' 
     - name: Install upx
       run: choco install upx --version=3.96 --no-progress
     - name: Set up Visual Studio shell
@@ -178,9 +210,24 @@ jobs:
         .\mvnw --batch-mode -Dsha1="$env:GITHUB_SHA" -Drevision="$env:REVISION" verify
     - name: Test and compress executable
       run: |
-        "./target/${{ env.ARTIFACT }}-windows-$env:REVISION.exe"
+        $expectedOutput = "${{ env.ARTIFACT }} version `"$env:REVISION`"`r`n"
+        $firstOutput = & "./target/${{ env.ARTIFACT }}-windows-$env:REVISION.exe" --% "--version" | Out-String
         upx "target/${{ env.ARTIFACT }}-windows-$env:REVISION.exe"
-        "./target/${{ env.ARTIFACT }}-windows-$env:REVISION.exe"
+        $secondOutput = & "./target/${{ env.ARTIFACT }}-windows-$env:REVISION.exe" --% "--version" | Out-String
+        if ($firstOutput -ne $expectedOutput) {
+          echo "The first output is wrong. Expected:"
+          echo $expectedOutput
+          echo "Got:"
+          echo $firstOutput
+          exit 1
+        }
+        if ($secondOutput -ne $expectedOutput) {
+          echo "The second output is wrong. Expected:"
+          echo $expectedOutput
+          echo "Got:"
+          echo $secondOutput
+          exit 1
+        }
     - name: Move artifacts
       run: |
         mkdir target/artifacts

@@ -5,6 +5,7 @@ import java.io.UncheckedIOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -14,8 +15,11 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 public class WaitForPorts {
@@ -23,6 +27,10 @@ public class WaitForPorts {
 	private static final int TIMEOUT_MS = 10_000;
 
 	public static void main(String[] args) {
+		if (args.length == 1 && "--version".equals(args[0])) {
+			System.out.println(getVersion());
+			System.exit(0);
+		}
 		try {
 			Path configFile = Paths.get(".wait-for-ports");
 			Collection<String> uris = List.of("http://localhost:8080");
@@ -109,6 +117,34 @@ public class WaitForPorts {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static String getVersion() {
+		try {
+			Enumeration<URL> resources = WaitForPorts.class.getClassLoader()
+					.getResources("META-INF/MANIFEST.MF");
+			while (resources.hasMoreElements()) {
+				URL url = resources.nextElement();
+				Manifest manifest = new Manifest(url.openStream());
+				if (isApplicableManifest(manifest)) {
+					Attributes attr = manifest.getMainAttributes();
+					return get(attr, "Implementation-Title") + " version \""
+							+ get(attr, "Implementation-Version") + "\"";
+				}
+			}
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		return "";
+	}
+
+	private static boolean isApplicableManifest(Manifest manifest) {
+		Attributes attributes = manifest.getMainAttributes();
+		return "newlinechecker".equals(get(attributes, "Implementation-Title"));
+	}
+
+	private static Object get(Attributes attributes, String key) {
+		return attributes.get(new Attributes.Name(key));
 	}
 
 }
