@@ -140,7 +140,7 @@ public class WaitForPorts {
 
 	private static boolean isApplicableManifest(Manifest manifest) {
 		Attributes attributes = manifest.getMainAttributes();
-		return "newlinechecker".equals(get(attributes, "Implementation-Title"));
+		return "wait-for-ports".equals(get(attributes, "Implementation-Title"));
 	}
 
 	private static Object get(Attributes attributes, String key) {
