@@ -6,7 +6,7 @@ on:
   - cron: '21 5 22 * *'
 env:
   ARTIFACT: wait-for-ports
-  GRAALVM_VERSION: 22.2.0
+  GRAALVM_VERSION: 22.3.0
   JAVA_VERSION: 17
 
 jobs:
