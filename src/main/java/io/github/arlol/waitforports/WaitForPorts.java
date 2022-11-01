@@ -2,6 +2,7 @@ package io.github.arlol.waitforports;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -55,10 +56,14 @@ public class WaitForPorts {
 					try {
 						if ("tcp".equals(uri.getScheme())
 								|| "telnet".equals(uri.getScheme())) {
-							try (Socket socket = new Socket(
-									uri.getHost(),
-									uri.getPort()
-							)) {
+							try (Socket socket = new Socket()) {
+								socket.connect(
+										new InetSocketAddress(
+												uri.getHost(),
+												uri.getPort()
+										),
+										TIMEOUT_MS
+								);
 								socket.setSoTimeout(TIMEOUT_MS);
 								if (socket.getInputStream().read() != -1) {
 									System.out.println("Success");
