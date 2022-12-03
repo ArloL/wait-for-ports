@@ -37,10 +37,12 @@ jobs:
       env:
         MATRIX_CONTEXT: ${{ toJSON(matrix) }}
       run: echo "$MATRIX_CONTEXT"
+    - name: Dump environment variables
+      run: set
   trigger-livecheck:
     name: Trigger livecheck
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     steps:
     - name: Trigger livecheck on ArloL/homebrew-tap
       uses: peter-evans/repository-dispatch@v2.1.0
