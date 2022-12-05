@@ -238,11 +238,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.graalvm.buildtools</groupId>
-                    <artifactId>native-maven-plugin</artifactId>
-                    <version>0.9.18</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
                     <configuration>
                         <propertiesEncoding>ISO-8859-1</propertiesEncoding>
