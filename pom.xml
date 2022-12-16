@@ -15,10 +15,10 @@
 	<version>${revision}</version>
 
 	<scm>
-		<connection>scm:git:https://github.com/ArloL/wait-for-ports.git</connection>
-		<developerConnection>scm:git:https://github.com/ArloL/wait-for-ports.git</developerConnection>
+		<connection>scm:git:https://github.com/ArloL/wait-for-ports</connection>
+		<developerConnection>scm:git:https://github.com/ArloL/wait-for-ports</developerConnection>
 		<tag>${sha1}</tag>
-		<url>https://github.com/ArloL/wait-for-ports/</url>
+		<url>https://github.com/ArloL/wait-for-ports</url>
 	</scm>
 
 	<licenses>
