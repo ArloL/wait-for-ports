@@ -110,7 +110,7 @@ jobs:
       run: |
         mkdir target/artifacts
         cp target/${{ env.ARTIFACT }}-* target/artifacts
-    - uses: actions/upload-artifact@v3.1.3
+    - uses: actions/upload-artifact@v4.0.0
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
@@ -166,7 +166,7 @@ jobs:
       run: |
         mkdir target/artifacts
         cp target/${{ env.ARTIFACT }}-* target/artifacts
-    - uses: actions/upload-artifact@v3.1.3
+    - uses: actions/upload-artifact@v4.0.0
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
@@ -217,7 +217,7 @@ jobs:
       run: |
         mkdir target/artifacts
         copy target/${{ env.ARTIFACT }}-* target/artifacts
-    - uses: actions/upload-artifact@v3.1.3
+    - uses: actions/upload-artifact@v4.0.0
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
