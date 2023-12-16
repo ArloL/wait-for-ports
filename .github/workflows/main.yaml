@@ -7,7 +7,7 @@ on:
 env:
   ARTIFACT: wait-for-ports
   GRAALVM_VERSION: 22.2.0
-  JAVA_VERSION: 17
+  JAVA_VERSION: 21
 
 jobs:
   debug:
@@ -73,9 +73,8 @@ jobs:
     - uses: actions/checkout@v4.1.1
     - uses: graalvm/setup-graalvm@v1.1.7
       with:
-        version: ${{ env.GRAALVM_VERSION }}
         java-version: ${{ env.JAVA_VERSION }}
-        components: 'native-image'
+        distribution: graalvm
         github-token: ${{ secrets.GITHUB_TOKEN }}
         cache: 'maven'
     - name: Build with Maven
@@ -107,9 +106,8 @@ jobs:
     - uses: actions/checkout@v4.1.1
     - uses: graalvm/setup-graalvm@v1.1.7
       with:
-        version: ${{ env.GRAALVM_VERSION }}
         java-version: ${{ env.JAVA_VERSION }}
-        components: 'native-image'
+        distribution: graalvm
         github-token: ${{ secrets.GITHUB_TOKEN }}
         cache: 'maven'
     - name: Build with Maven
@@ -141,9 +139,8 @@ jobs:
     - uses: actions/checkout@v4.1.1
     - uses: graalvm/setup-graalvm@v1.1.7
       with:
-        version: ${{ env.GRAALVM_VERSION }}
         java-version: ${{ env.JAVA_VERSION }}
-        components: 'native-image'
+        distribution: graalvm
         github-token: ${{ secrets.GITHUB_TOKEN }}
         cache: 'maven'
     - name: Remove WindowsImageHeapProviderFeature
