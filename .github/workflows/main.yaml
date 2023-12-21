@@ -85,16 +85,7 @@ jobs:
           -Drevision="${REVISION}" \
           verify
     - name: Test executable
-      run: |
-        expectedOutput="${ARTIFACT} version \"${REVISION}\""
-        actualOutput=$("./target/${ARTIFACT}-macos-${REVISION}" --version)
-        if [ "$actualOutput" != "$expectedOutput" ]; then
-          echo "The output is wrong. Expected:"
-          echo "$expectedOutput"
-          echo "Got:"
-          echo "$actualOutput"
-          exit 1
-        fi
+      run: sh ./src/test/native/test-executable.sh "${{ env.ARTIFACT }}" macos "${{ env.REVISION }}"
     - name: Move artifacts
       run: |
         mkdir target/artifacts
@@ -128,16 +119,7 @@ jobs:
           -Drevision="${REVISION}" \
           verify
     - name: Test executable
-      run: |
-        expectedOutput="${ARTIFACT} version \"${REVISION}\""
-        actualOutput=$("./target/${ARTIFACT}-linux-${REVISION}" --version)
-        if [ "$actualOutput" != "$expectedOutput" ]; then
-          echo "The output is wrong. Expected:"
-          echo "$expectedOutput"
-          echo "Got:"
-          echo "$actualOutput"
-          exit 1
-        fi
+      run: sh ./src/test/native/test-executable.sh "${{ env.ARTIFACT }}" linux "${{ env.REVISION }}"
     - name: Move artifacts
       run: |
         mkdir target/artifacts
@@ -168,16 +150,7 @@ jobs:
       run: |
         .\mvnw --batch-mode -Dsha1="$env:GITHUB_SHA" -Drevision="$env:REVISION" verify
     - name: Test executable
-      run: |
-        $expectedOutput = "${{ env.ARTIFACT }} version `"$env:REVISION`"`r`n"
-        $actualOutput = & "./target/${{ env.ARTIFACT }}-windows-$env:REVISION.exe" --% "--version" | Out-String
-        if ($actualOutput -ne $expectedOutput) {
-          echo "The output is wrong. Expected:"
-          echo $expectedOutput
-          echo "Got:"
-          echo $actualOutput
-          exit 1
-        }
+      run: sh ./src/test/native/test-executable.sh "${{ env.ARTIFACT }}" windows "${{ env.REVISION }}"
     - name: Move artifacts
       run: |
         mkdir target/artifacts
