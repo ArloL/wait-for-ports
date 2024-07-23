@@ -1,16 +1,9 @@
 # Created by chorito https://github.com/ArloL/chorito
 
-### Eclipse ###
+### Maven Wrapper ###
 
-/.project
+!/maven-wrapper.jar
+!/maven-wrapper.properties
 
-### Eclipse+Java ###
-
-/.classpath
-
-### Maven ###
-
-/target/
-/.flattened-pom.xml
 
 # End of chorito. Add your ignores after this line and they will be preserved.
