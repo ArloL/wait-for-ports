@@ -7,6 +7,11 @@
 ### Eclipse+Java ###
 
 /.classpath
+/bin/
+
+### IntelliJ IDEA ###
+
+/out/
 
 ### Maven ###
 
