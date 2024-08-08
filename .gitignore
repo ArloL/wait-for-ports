@@ -4,8 +4,9 @@
 
 ### Eclipse+Java ###
 
-/.classpath
 /bin/
+/.classpath
+/.factorypath
 
 ### IntelliJ IDEA ###
 
