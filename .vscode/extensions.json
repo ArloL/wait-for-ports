@@ -1,6 +1,6 @@
 {
     "recommendations": [
         "editorconfig.editorconfig",
-        "vscjava.vscode-java-pack"
+        "vscjava.vscode-java-pack",
     ],
 }
