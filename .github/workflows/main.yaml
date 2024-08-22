@@ -45,6 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       new_version: ${{ steps.output.outputs.new_version }}
+      build_timestamp: ${{ steps.output.outputs.build_timestamp }}
     steps:
     - uses: actions/checkout@v4.1.7
     - name: Bump version and push tag
@@ -56,6 +57,7 @@ jobs:
         NEW_VERSION: ${{ steps.tag.outputs.new_version }}
       run: |
         echo "new_version=${NEW_VERSION:-$GITHUB_SHA}" >> $GITHUB_OUTPUT
+        echo "build_timestamp=$(date --iso-8601=seconds)" >> $GITHUB_OUTPUT
     - name: Make sure build did not change anything
       run: git diff --exit-code
   macos:
@@ -63,6 +65,7 @@ jobs:
     needs: version
     env:
       REVISION: ${{ needs.version.outputs.new_version }}
+      BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
     - uses: actions/checkout@v4.1.7
     - uses: graalvm/setup-graalvm@v1.2.3
@@ -96,6 +99,7 @@ jobs:
     needs: version
     env:
       REVISION: ${{ needs.version.outputs.new_version }}
+      BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
     - uses: actions/checkout@v4.1.7
     - uses: graalvm/setup-graalvm@v1.2.3
@@ -129,6 +133,7 @@ jobs:
     needs: version
     env:
       REVISION: ${{ needs.version.outputs.new_version }}
+      BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
     - uses: actions/checkout@v4.1.7
     - uses: graalvm/setup-graalvm@v1.2.3
@@ -246,6 +251,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REVISION: ${{ needs.version.outputs.new_version }}
+        BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
       run: |
         ./mvnw \
           --batch-mode \
