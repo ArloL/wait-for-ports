@@ -47,7 +47,7 @@ jobs:
       new_version: ${{ steps.output.outputs.new_version }}
       build_timestamp: ${{ steps.output.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v4.2.0
     - name: Bump version and push tag
       id: tag
       if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
@@ -67,7 +67,7 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v4.2.0
     - uses: graalvm/setup-graalvm@v1.2.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
@@ -101,7 +101,7 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v4.2.0
     - uses: graalvm/setup-graalvm@v1.2.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
@@ -135,7 +135,7 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v4.2.0
     - uses: graalvm/setup-graalvm@v1.2.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
@@ -166,7 +166,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v4.2.0
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v4.1.8
       with:
@@ -241,7 +241,7 @@ jobs:
     permissions:
       packages: write
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v4.2.0
     - uses: actions/setup-java@v4.3.0
       with:
         java-version: ${{ env.JAVA_VERSION }}
