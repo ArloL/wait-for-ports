@@ -12,7 +12,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +32,7 @@ public class WaitForPorts {
 			System.exit(0);
 		}
 		try {
-			Path configFile = Paths.get(".wait-for-ports");
+			Path configFile = Path.of(".wait-for-ports");
 			Collection<String> uris = List.of("http://localhost:8080");
 			if (args.length > 0) {
 				uris = Arrays.asList(args);
