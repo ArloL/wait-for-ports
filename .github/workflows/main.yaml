@@ -4,6 +4,7 @@ on:
   push:
   schedule:
   - cron: '21 5 22 * *'
+permissions: {}
 env:
   ARTIFACT: wait-for-ports
   GRAALVM_VERSION: 22.2.0
@@ -48,6 +49,8 @@ jobs:
       build_timestamp: ${{ steps.output.outputs.build_timestamp }}
     steps:
     - uses: actions/checkout@v4.2.2
+      with:
+        persist-credentials: true
     - name: Bump version and push tag
       id: tag
       if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
@@ -56,8 +59,8 @@ jobs:
       env:
         NEW_VERSION: ${{ steps.tag.outputs.new_version }}
       run: |
-        echo "new_version=${NEW_VERSION:-$GITHUB_SHA}" >> $GITHUB_OUTPUT
-        echo "build_timestamp=$(date --iso-8601=seconds)" >> $GITHUB_OUTPUT
+        echo "new_version=${NEW_VERSION:-$GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
+        echo "build_timestamp=$(date --iso-8601=seconds)" >> "${GITHUB_OUTPUT}"
     - name: Make sure build did not change anything
       run: git diff --exit-code
   macos:
@@ -68,6 +71,8 @@ jobs:
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
     - uses: actions/checkout@v4.2.2
+      with:
+        persist-credentials: false
     - uses: graalvm/setup-graalvm@v1.3.1
       with:
         java-version: ${{ env.JAVA_VERSION }}
@@ -83,11 +88,11 @@ jobs:
           -Drevision="${REVISION}" \
           verify
     - name: Test executable
-      run: sh ./src/test/native/test-executable.sh "${{ env.ARTIFACT }}" macos "${{ env.REVISION }}"
+      run: sh ./src/test/native/test-executable.sh "${ARTIFACT}" macos "${REVISION}"
     - name: Move artifacts
       run: |
         mkdir target/artifacts
-        cp target/${{ env.ARTIFACT }}-* target/artifacts
+        cp target/"${ARTIFACT}"-* target/artifacts
     - uses: actions/upload-artifact@v4.6.0
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
@@ -102,6 +107,8 @@ jobs:
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
     - uses: actions/checkout@v4.2.2
+      with:
+        persist-credentials: false
     - uses: graalvm/setup-graalvm@v1.3.1
       with:
         java-version: ${{ env.JAVA_VERSION }}
@@ -117,11 +124,11 @@ jobs:
           -Drevision="${REVISION}" \
           verify
     - name: Test executable
-      run: sh ./src/test/native/test-executable.sh "${{ env.ARTIFACT }}" linux "${{ env.REVISION }}"
+      run: sh ./src/test/native/test-executable.sh "${ARTIFACT}" linux "${REVISION}"
     - name: Move artifacts
       run: |
         mkdir target/artifacts
-        cp target/${{ env.ARTIFACT }}-* target/artifacts
+        cp target/"${ARTIFACT}"-* target/artifacts
     - uses: actions/upload-artifact@v4.6.0
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
@@ -136,6 +143,8 @@ jobs:
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
     - uses: actions/checkout@v4.2.2
+      with:
+        persist-credentials: false
     - uses: graalvm/setup-graalvm@v1.3.1
       with:
         java-version: ${{ env.JAVA_VERSION }}
@@ -148,11 +157,11 @@ jobs:
       run: |
         .\mvnw --batch-mode -Dsha1="$env:GITHUB_SHA" -Drevision="$env:REVISION" verify
     - name: Test executable
-      run: sh ./src/test/native/test-executable.sh "${{ env.ARTIFACT }}" windows "${{ env.REVISION }}"
+      run: sh ./src/test/native/test-executable.sh "$env:ARTIFACT" windows "$env:REVISION"
     - name: Move artifacts
       run: |
         mkdir target/artifacts
-        copy target/${{ env.ARTIFACT }}-* target/artifacts
+        copy target/$env:ARTIFACT-* target/artifacts
     - uses: actions/upload-artifact@v4.6.0
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
@@ -167,23 +176,26 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v4.2.2
+      with:
+        persist-credentials: false
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v4.1.9
       with:
         path: ./target
-    - name: Build project
+    - name: Zip artifacts
       working-directory: target
+      env:
+        NEW_VERSION: ${{ needs.version.outputs.new_version }}
       run: |
-        zip -r windows.zip ${{ env.ARTIFACT }}-windows-${{ needs.version.outputs.new_version }}/
-        zip -r linux.zip ${{ env.ARTIFACT }}-linux-${{ needs.version.outputs.new_version }}/
-        zip -r macos.zip ${{ env.ARTIFACT }}-macos-${{ needs.version.outputs.new_version }}/
+        zip -r windows.zip "${ARTIFACT}-windows-${NEW_VERSION}/"
+        zip -r linux.zip "${ARTIFACT}-linux-${NEW_VERSION}/"
+        zip -r macos.zip "${ARTIFACT}-macos-${NEW_VERSION}/"
     - name: Create Release
       id: create_release
       uses: ncipollo/release-action@v1.16.0
       with:
         tag: v${{ needs.version.outputs.new_version }}
         name: Release ${{ needs.version.outputs.new_version }}
-        body: ${{ needs.version.outputs.changelog }}
         draft: true
     - name: Upload Release Asset
       uses: shogo82148/actions-upload-release-asset@v1.7.8
@@ -242,6 +254,8 @@ jobs:
       packages: write
     steps:
     - uses: actions/checkout@v4.2.2
+      with:
+        persist-credentials: false
     - uses: actions/setup-java@v4.7.0
       with:
         java-version: ${{ env.JAVA_VERSION }}
@@ -261,3 +275,13 @@ jobs:
           deploy
     - name: Make sure build did not change anything
       run: git diff --exit-code
+  trigger-livecheck:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+    - name: Trigger livecheck on ArloL/homebrew-tap
+      uses: peter-evans/repository-dispatch@v3.0.0
+      with:
+        token: ${{ secrets.LIVECHECK_PAT }}
+        repository: ArloL/homebrew-tap
+        event-type: livecheck

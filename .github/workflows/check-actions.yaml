@@ -1,13 +1,10 @@
-name: Trigger livecheck
+name: Check actions
 
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows: ["Main"]
-    branches:
-    - main
-    types:
-    - completed
+  push:
+  schedule:
+  - cron: '14 5 3 * *'
+permissions: {}
 
 jobs:
   debug:
@@ -39,14 +36,33 @@ jobs:
       run: echo "$MATRIX_CONTEXT"
     - name: Dump environment variables
       run: set
-  trigger-livecheck:
-    name: Trigger livecheck
+  actionlint:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     steps:
-    - name: Trigger livecheck on ArloL/homebrew-tap
-      uses: peter-evans/repository-dispatch@v3.0.0
+    - uses: actions/checkout@v4.2.2
       with:
-        token: ${{ secrets.LIVECHECK_PAT }}
-        repository: ArloL/homebrew-tap
-        event-type: livecheck
+        persist-credentials: false
+    - name: run actionlint
+      run: |
+        bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        ./actionlint
+  zizmor:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+    - uses: actions/checkout@v4.2.2
+      with:
+        persist-credentials: false
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v5
+    - name: Run zizmor 🌈
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        uvx zizmor --format sarif . > results.sarif
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: results.sarif
+        category: zizmor

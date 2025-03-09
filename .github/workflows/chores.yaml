@@ -7,7 +7,7 @@ on:
     - chores
   schedule:
   - cron: '22 22 25 * *'
-
+permissions: {}
 concurrency: chores
 
 jobs:
@@ -50,6 +50,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4.2.2
+      with:
+        persist-credentials: false
     - name: Chores
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ArloL/chorito/HEAD/run-latest.sh)"
