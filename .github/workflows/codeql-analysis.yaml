@@ -43,17 +43,17 @@ jobs:
       run: set
   analyze:
     name: Analyze
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+        - java-kotlin
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
     permissions:
       actions: read
       contents: read
       security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        language:
-        - java-kotlin
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4.2.2
