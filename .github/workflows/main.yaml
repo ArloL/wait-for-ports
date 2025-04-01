@@ -73,7 +73,7 @@ jobs:
     - uses: actions/checkout@v4.2.2
       with:
         persist-credentials: false
-    - uses: graalvm/setup-graalvm@v1.3.1
+    - uses: graalvm/setup-graalvm@v1.3.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: graalvm
@@ -109,7 +109,7 @@ jobs:
     - uses: actions/checkout@v4.2.2
       with:
         persist-credentials: false
-    - uses: graalvm/setup-graalvm@v1.3.1
+    - uses: graalvm/setup-graalvm@v1.3.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: graalvm
@@ -145,7 +145,7 @@ jobs:
     - uses: actions/checkout@v4.2.2
       with:
         persist-credentials: false
-    - uses: graalvm/setup-graalvm@v1.3.1
+    - uses: graalvm/setup-graalvm@v1.3.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: graalvm
