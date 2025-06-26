@@ -48,13 +48,13 @@ jobs:
       new_version: ${{ steps.output.outputs.new_version }}
       build_timestamp: ${{ steps.output.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         persist-credentials: true
     - name: Bump version and push tag
       id: tag
       if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
-      uses: ArloL/calver-tag-action@v2503.0.106
+      uses: ArloL/calver-tag-action@b405d8339fa528d6ba86af320b97ea70e8f80094 # v2503.0.106
     - id: output
       env:
         NEW_VERSION: ${{ steps.tag.outputs.new_version }}
@@ -70,10 +70,10 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         persist-credentials: false
-    - uses: graalvm/setup-graalvm@v1.3.3
+    - uses: graalvm/setup-graalvm@01ed653ac833fe80569f1ef9f25585ba2811baab # v1.3.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: graalvm
@@ -93,7 +93,7 @@ jobs:
       run: |
         mkdir target/artifacts
         cp target/"${ARTIFACT}"-* target/artifacts
-    - uses: actions/upload-artifact@v4.6.2
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
@@ -106,10 +106,10 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         persist-credentials: false
-    - uses: graalvm/setup-graalvm@v1.3.3
+    - uses: graalvm/setup-graalvm@01ed653ac833fe80569f1ef9f25585ba2811baab # v1.3.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: graalvm
@@ -129,7 +129,7 @@ jobs:
       run: |
         mkdir target/artifacts
         cp target/"${ARTIFACT}"-* target/artifacts
-    - uses: actions/upload-artifact@v4.6.2
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
@@ -142,10 +142,10 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         persist-credentials: false
-    - uses: graalvm/setup-graalvm@v1.3.3
+    - uses: graalvm/setup-graalvm@01ed653ac833fe80569f1ef9f25585ba2811baab # v1.3.3
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: graalvm
@@ -162,7 +162,7 @@ jobs:
       run: |
         mkdir target/artifacts
         copy target/$env:ARTIFACT-* target/artifacts
-    - uses: actions/upload-artifact@v4.6.2
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: ${{ env.ARTIFACT }}-${{ github.job }}-${{ needs.version.outputs.new_version }}
         path: target/artifacts
@@ -175,11 +175,11 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         persist-credentials: false
     - name: Download all workflow run artifacts
-      uses: actions/download-artifact@v4.1.9
+      uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
       with:
         path: ./target
     - name: Zip artifacts
@@ -192,54 +192,54 @@ jobs:
         zip -r macos.zip "${ARTIFACT}-macos-${NEW_VERSION}/"
     - name: Create Release
       id: create_release
-      uses: ncipollo/release-action@v1.16.0
+      uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
       with:
         tag: v${{ needs.version.outputs.new_version }}
         name: Release ${{ needs.version.outputs.new_version }}
         draft: true
     - name: Upload Release Asset
-      uses: shogo82148/actions-upload-release-asset@v1.8.0
+      uses: shogo82148/actions-upload-release-asset@d22998fda4c1407f60d1ab48cd6fe67f360f34de # v1.8.0
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/linux.zip
         asset_name: ${{ env.ARTIFACT }}-linux-${{ needs.version.outputs.new_version }}.zip
         asset_content_type: application/zip
     - name: Upload Release Asset
-      uses: shogo82148/actions-upload-release-asset@v1.8.0
+      uses: shogo82148/actions-upload-release-asset@d22998fda4c1407f60d1ab48cd6fe67f360f34de # v1.8.0
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/${{ env.ARTIFACT }}-linux-${{ needs.version.outputs.new_version }}/${{ env.ARTIFACT }}-linux-${{ needs.version.outputs.new_version }}
         asset_name: ${{ env.ARTIFACT }}-linux
         asset_content_type: application/x-executable
     - name: Upload Release Asset
-      uses: shogo82148/actions-upload-release-asset@v1.8.0
+      uses: shogo82148/actions-upload-release-asset@d22998fda4c1407f60d1ab48cd6fe67f360f34de # v1.8.0
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/windows.zip
         asset_name: ${{ env.ARTIFACT }}-windows-${{ needs.version.outputs.new_version }}.zip
         asset_content_type: application/zip
     - name: Upload Release Asset
-      uses: shogo82148/actions-upload-release-asset@v1.8.0
+      uses: shogo82148/actions-upload-release-asset@d22998fda4c1407f60d1ab48cd6fe67f360f34de # v1.8.0
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/${{ env.ARTIFACT }}-windows-${{ needs.version.outputs.new_version }}/${{ env.ARTIFACT }}-windows-${{ needs.version.outputs.new_version }}.exe
         asset_name: ${{ env.ARTIFACT }}-windows.exe
         asset_content_type: application/vnd.microsoft.portable-executable
     - name: Upload Release Asset
-      uses: shogo82148/actions-upload-release-asset@v1.8.0
+      uses: shogo82148/actions-upload-release-asset@d22998fda4c1407f60d1ab48cd6fe67f360f34de # v1.8.0
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/macos.zip
         asset_name: ${{ env.ARTIFACT }}-macos-${{ needs.version.outputs.new_version }}.zip
         asset_content_type: application/zip
     - name: Upload Release Asset
-      uses: shogo82148/actions-upload-release-asset@v1.8.0
+      uses: shogo82148/actions-upload-release-asset@d22998fda4c1407f60d1ab48cd6fe67f360f34de # v1.8.0
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/${{ env.ARTIFACT }}-macos-${{ needs.version.outputs.new_version }}/${{ env.ARTIFACT }}-macos-${{ needs.version.outputs.new_version }}
         asset_name: ${{ env.ARTIFACT }}-macos
         asset_content_type: application/octet-stream
-    - uses: eregon/publish-release@v1.0.6
+    - uses: eregon/publish-release@01df127f5e9a3c26935118e22e738d95b59d10ce # v1.0.6
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -253,10 +253,10 @@ jobs:
     permissions:
       packages: write
     steps:
-    - uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         persist-credentials: false
-    - uses: actions/setup-java@v4.7.0
+    - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: temurin
@@ -280,7 +280,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Trigger livecheck on ArloL/homebrew-tap
-      uses: peter-evans/repository-dispatch@v3.0.0
+      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # v3.0.0
       with:
         token: ${{ secrets.LIVECHECK_PAT }}
         repository: ArloL/homebrew-tap
