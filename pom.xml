@@ -29,7 +29,7 @@
 	</licenses>
 
 	<properties>
-		<java.version>21</java.version>
+		<java.version>25</java.version>
 		<platform>unknown</platform>
 		<sha1>HEAD</sha1>
 		<revision>0.0.1-SNAPSHOT</revision>

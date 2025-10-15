@@ -9,7 +9,7 @@ on:
   - cron: '39 3 7 * *'
 permissions: {}
 env:
-  JAVA_VERSION: 21
+  JAVA_VERSION: 25
 
 jobs:
   debug:
