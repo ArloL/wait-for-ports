@@ -54,7 +54,7 @@ jobs:
     - name: Bump version and push tag
       id: tag
       if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
-      uses: ArloL/calver-tag-action@d27f496764c3e2234da618b99fa09e58ee615150 # v2507.0.103
+      uses: ArloL/calver-tag-action@924a62720edd4d7d43b8490d8f7cedb376ff2af5 # v2510.0.104
     - id: output
       env:
         NEW_VERSION: ${{ steps.tag.outputs.new_version }}
