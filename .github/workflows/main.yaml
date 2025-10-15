@@ -48,7 +48,7 @@ jobs:
       new_version: ${{ steps.output.outputs.new_version }}
       build_timestamp: ${{ steps.output.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         persist-credentials: true
     - name: Bump version and push tag
@@ -70,7 +70,7 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         persist-credentials: false
     - uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
@@ -106,7 +106,7 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         persist-credentials: false
     - uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
@@ -142,7 +142,7 @@ jobs:
       REVISION: ${{ needs.version.outputs.new_version }}
       BUILD_TIMESTAMP: ${{ needs.version.outputs.build_timestamp }}
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         persist-credentials: false
     - uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
@@ -175,7 +175,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         persist-credentials: false
     - name: Download all workflow run artifacts
@@ -253,7 +253,7 @@ jobs:
     permissions:
       packages: write
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         persist-credentials: false
     - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
