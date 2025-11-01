@@ -239,11 +239,14 @@ jobs:
         asset_path: ./target/${{ env.ARTIFACT }}-macos-${{ needs.version.outputs.new_version }}/${{ env.ARTIFACT }}-macos-${{ needs.version.outputs.new_version }}
         asset_name: ${{ env.ARTIFACT }}-macos
         asset_content_type: application/octet-stream
-    - uses: eregon/publish-release@01df127f5e9a3c26935118e22e738d95b59d10ce # v1.0.6
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
       with:
-        release_id: ${{ steps.create_release.outputs.id }}
+        tag: v${{ needs.version.outputs.new_version }}
+        allowUpdates: true
+        immutableCreate: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        updateOnlyUnreleased: true
     - name: Make sure build did not change anything
       run: git diff --exit-code
   deploy:
