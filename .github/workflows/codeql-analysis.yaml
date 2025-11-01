@@ -6,10 +6,8 @@ on:
   pull_request:
     branches: main
   schedule:
-  - cron: '39 3 7 * *'
+  - cron: "39 3 7 * *"
 permissions: {}
-env:
-  JAVA_VERSION: 25
 
 jobs:
   debug:
@@ -61,9 +59,9 @@ jobs:
         persist-credentials: false
     - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
-        java-version: ${{ env.JAVA_VERSION }}
+        cache: maven
         distribution: temurin
-        cache: 'maven'
+        java-version-file: .tool-versions
     - name: Initialize CodeQL
       uses: github/codeql-action/init@f443b600d91635bebf5b0d9ebc620189c0d6fba5 # v4.30.8
       with:
