@@ -46,6 +46,7 @@ jobs:
       matrix:
         language:
         - java-kotlin
+        - actions
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
     permissions:
