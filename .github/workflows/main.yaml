@@ -304,13 +304,3 @@ jobs:
         RESULTS: ${{ toJSON(needs) }}
       run: |
         echo "$RESULTS" | jq --exit-status 'all(.result == "success")' || exit 1
-  trigger-livecheck:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-    - name: Trigger livecheck on ArloL/homebrew-tap
-      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
-      with:
-        event-type: livecheck
-        repository: ArloL/homebrew-tap
-        token: ${{ secrets.LIVECHECK_PAT }}
