@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class WaitForPorts {
 
 	private static final int TIMEOUT_MS = 10_000;
+	private static final String SUCCESS = "Success";
 
 	public static void main(String[] args) {
 		if (args.length == 1 && "--version".equals(args[0])) {
@@ -65,13 +66,13 @@ public class WaitForPorts {
 								);
 								socket.setSoTimeout(TIMEOUT_MS);
 								if (socket.getInputStream().read() != -1) {
-									System.out.println("Success");
+									System.out.println(SUCCESS);
 									iterator.remove();
 								} else {
 									System.out.println("Disconnected");
 								}
 							} catch (SocketTimeoutException e) {
-								System.out.println("Success");
+								System.out.println(SUCCESS);
 								iterator.remove();
 							}
 						} else if ("http".equals(uri.getScheme())
@@ -97,7 +98,7 @@ public class WaitForPorts {
 									)
 									.statusCode();
 							if (actual == expected) {
-								System.out.println("Success");
+								System.out.println(SUCCESS);
 								iterator.remove();
 							} else {
 								System.out.println("Status code is " + actual);
@@ -119,7 +120,8 @@ public class WaitForPorts {
 				}
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Thread.currentThread().interrupt();
+			System.err.println("Interrupted while waiting for ports");
 		}
 	}
 
