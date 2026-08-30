@@ -26,6 +26,8 @@ public class WaitForPorts {
 
 	private static final int TIMEOUT_MS = 10_000;
 	private static final String SUCCESS = "Success";
+	private static final Path CONFIG_FILE = Path.of(".wait-for-ports");
+	private static final String DEFAULT_URI = "http://localhost:8080";
 
 	public static void main(String[] args) {
 		if (args.length == 1 && "--version".equals(args[0])) {
@@ -33,96 +35,122 @@ public class WaitForPorts {
 			System.exit(0);
 		}
 		try {
-			Path configFile = Path.of(".wait-for-ports");
-			Collection<String> uris = List.of("http://localhost:8080");
-			if (args.length > 0) {
-				uris = Arrays.asList(args);
-			} else if (Files.isReadable(configFile)) {
-				try {
-					uris = Files.readAllLines(configFile);
-				} catch (IOException e) {
-					throw new UncheckedIOException(e);
-				}
-			}
-			Collection<URI> endpoints = uris.stream()
-					.map(URI::create)
-					.collect(Collectors.toSet());
-			while (!endpoints.isEmpty()) {
-				Iterator<URI> iterator = endpoints.iterator();
-				long startTimeMillis = System.currentTimeMillis();
-				while (iterator.hasNext()) {
-					URI uri = iterator.next();
-					System.out.print("Testing " + uri + " : ");
-					try {
-						if ("tcp".equals(uri.getScheme())
-								|| "telnet".equals(uri.getScheme())) {
-							try (Socket socket = new Socket()) {
-								socket.connect(
-										new InetSocketAddress(
-												uri.getHost(),
-												uri.getPort()
-										),
-										TIMEOUT_MS
-								);
-								socket.setSoTimeout(TIMEOUT_MS);
-								if (socket.getInputStream().read() != -1) {
-									System.out.println(SUCCESS);
-									iterator.remove();
-								} else {
-									System.out.println("Disconnected");
-								}
-							} catch (SocketTimeoutException e) {
-								System.out.println(SUCCESS);
-								iterator.remove();
-							}
-						} else if ("http".equals(uri.getScheme())
-								|| "https".equals(uri.getScheme())) {
-							// HTTP 1.1 since the fallback to 1.1 times out with
-							// yarn server ¯\_(ツ)_/¯
-							HttpRequest request = HttpRequest.newBuilder()
-									.version(HttpClient.Version.HTTP_1_1)
-									.uri(uri)
-									.timeout(Duration.ofMillis(TIMEOUT_MS))
-									.build();
-							int expected = 200;
-							if (uri.getFragment() != null
-									&& !uri.getFragment().isBlank()) {
-								expected = Integer.parseInt(uri.getFragment());
-							}
-							int actual = HttpClient.newBuilder()
-									.build()
-									.send(
-											request,
-											HttpResponse.BodyHandlers
-													.discarding()
-									)
-									.statusCode();
-							if (actual == expected) {
-								System.out.println(SUCCESS);
-								iterator.remove();
-							} else {
-								System.out.println("Status code is " + actual);
-							}
-						} else {
-							System.out.println(
-									uri.getScheme() + " not supported"
-							);
-							iterator.remove();
-						}
-					} catch (IOException e) {
-						System.out.println(e.getMessage());
-					}
-				}
-				long sleepTime = startTimeMillis + TIMEOUT_MS
-						- System.currentTimeMillis();
-				if (!endpoints.isEmpty() && sleepTime > 0) {
-					Thread.sleep(sleepTime);
-				}
-			}
+			waitForEndpoints(endpoints(args));
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			System.err.println("Interrupted while waiting for ports");
 		}
+	}
+
+	private static Collection<URI> endpoints(String[] args) {
+		return uris(args).stream().map(URI::create).collect(Collectors.toSet());
+	}
+
+	private static Collection<String> uris(String[] args) {
+		if (args.length > 0) {
+			return Arrays.asList(args);
+		}
+		if (Files.isReadable(CONFIG_FILE)) {
+			try {
+				return Files.readAllLines(CONFIG_FILE);
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		}
+		return List.of(DEFAULT_URI);
+	}
+
+	// Probes every endpoint once per round until none are left, starting a
+	// round every TIMEOUT_MS milliseconds.
+	private static void waitForEndpoints(Collection<URI> endpoints)
+			throws InterruptedException {
+		while (!endpoints.isEmpty()) {
+			long startTimeMillis = System.currentTimeMillis();
+			probe(endpoints);
+			long sleepTime = startTimeMillis + TIMEOUT_MS
+					- System.currentTimeMillis();
+			if (!endpoints.isEmpty() && sleepTime > 0) {
+				Thread.sleep(sleepTime);
+			}
+		}
+	}
+
+	private static void probe(Collection<URI> endpoints)
+			throws InterruptedException {
+		Iterator<URI> iterator = endpoints.iterator();
+		while (iterator.hasNext()) {
+			URI uri = iterator.next();
+			System.out.print("Testing " + uri + " : ");
+			try {
+				if (isReady(uri)) {
+					iterator.remove();
+				}
+			} catch (IOException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+	}
+
+	// True when the endpoint can be dropped: it answered as expected, or its
+	// scheme is not supported.
+	private static boolean isReady(URI uri)
+			throws IOException, InterruptedException {
+		String scheme = uri.getScheme();
+		if ("tcp".equals(scheme) || "telnet".equals(scheme)) {
+			return isTcpReady(uri);
+		}
+		if ("http".equals(scheme) || "https".equals(scheme)) {
+			return isHttpReady(uri);
+		}
+		System.out.println(scheme + " not supported");
+		return true;
+	}
+
+	private static boolean isTcpReady(URI uri) throws IOException {
+		try (Socket socket = new Socket()) {
+			socket.connect(
+					new InetSocketAddress(uri.getHost(), uri.getPort()),
+					TIMEOUT_MS
+			);
+			socket.setSoTimeout(TIMEOUT_MS);
+			if (socket.getInputStream().read() == -1) {
+				System.out.println("Disconnected");
+				return false;
+			}
+		} catch (SocketTimeoutException e) {
+			// A server that accepts but stays silent is up.
+		}
+		System.out.println(SUCCESS);
+		return true;
+	}
+
+	private static boolean isHttpReady(URI uri)
+			throws IOException, InterruptedException {
+		// HTTP 1.1 since the fallback to 1.1 times out with yarn server
+		// ¯\_(ツ)_/¯
+		HttpRequest request = HttpRequest.newBuilder()
+				.version(HttpClient.Version.HTTP_1_1)
+				.uri(uri)
+				.timeout(Duration.ofMillis(TIMEOUT_MS))
+				.build();
+		int actual = HttpClient.newBuilder()
+				.build()
+				.send(request, HttpResponse.BodyHandlers.discarding())
+				.statusCode();
+		if (actual != expectedStatusCode(uri)) {
+			System.out.println("Status code is " + actual);
+			return false;
+		}
+		System.out.println(SUCCESS);
+		return true;
+	}
+
+	private static int expectedStatusCode(URI uri) {
+		String fragment = uri.getFragment();
+		if (fragment != null && !fragment.isBlank()) {
+			return Integer.parseInt(fragment);
+		}
+		return 200;
 	}
 
 	public static String getVersion() {
