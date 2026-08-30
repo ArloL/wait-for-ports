@@ -2,6 +2,7 @@ package io.github.arlol.waitforports;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -331,7 +332,7 @@ public class WaitForPortsTests {
 				UncheckedIOException.class,
 				() -> WaitForPorts.uris(NO_ARGS, configFile)
 		);
-		assertEquals(IOException.class, exception.getCause().getClass());
+		assertInstanceOf(IOException.class, exception.getCause());
 	}
 
 	@Test
@@ -379,8 +380,12 @@ public class WaitForPortsTests {
 
 	private Path writeConfigFile(String... lines) {
 		try {
-			return Files
-					.write(tempDir.resolve(".wait-for-ports"), List.of(lines));
+			// Explicit newlines: the fixture must not depend on the
+			// platform line separator.
+			return Files.writeString(
+					tempDir.resolve(".wait-for-ports"),
+					String.join("\n", lines) + "\n"
+			);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
