@@ -1,44 +1,74 @@
 package io.github.arlol.waitforports;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.sun.net.httpserver.HttpServer;
 
 public class WaitForPortsTests {
 
+	private static final String[] NO_ARGS = {};
+
+	@TempDir
+	Path tempDir;
+
 	private PrintStream originalOut;
+	private PrintStream originalErr;
 	private ByteArrayOutputStream capturedOut;
+	private ByteArrayOutputStream capturedErr;
 
 	@BeforeEach
 	void redirectStdOut() {
 		originalOut = System.out;
+		originalErr = System.err;
 		capturedOut = new ByteArrayOutputStream();
+		capturedErr = new ByteArrayOutputStream();
 		System.setOut(
 				new PrintStream(capturedOut, true, StandardCharsets.UTF_8)
+		);
+		System.setErr(
+				new PrintStream(capturedErr, true, StandardCharsets.UTF_8)
 		);
 	}
 
 	@AfterEach
 	void restoreStdOut() {
 		System.setOut(originalOut);
+		System.setErr(originalErr);
 	}
 
 	private String output() {
 		return capturedOut.toString(StandardCharsets.UTF_8);
+	}
+
+	private String errorOutput() {
+		return capturedErr.toString(StandardCharsets.UTF_8);
 	}
 
 	private void runMain(String... args) {
@@ -46,6 +76,12 @@ public class WaitForPortsTests {
 				Duration.ofSeconds(30),
 				() -> WaitForPorts.main(args)
 		);
+	}
+
+	private static int closedPort() throws IOException {
+		try (ServerSocket serverSocket = new ServerSocket(0)) {
+			return serverSocket.getLocalPort();
+		}
 	}
 
 	@Test
@@ -77,6 +113,12 @@ public class WaitForPortsTests {
 	}
 
 	@Test
+	void unsupportedSchemeCountsAsReadySoItIsNotRetried() throws Exception {
+		assertTrue(WaitForPorts.isReady(URI.create("ftp://localhost")));
+		assertEquals("ftp not supported" + System.lineSeparator(), output());
+	}
+
+	@Test
 	void reachableTcpPortSucceeds() throws IOException {
 		try (ServerSocket serverSocket = new ServerSocket(0)) {
 			int port = serverSocket.getLocalPort();
@@ -100,6 +142,28 @@ public class WaitForPortsTests {
 					output.contains("Success"),
 					() -> "Expected TCP success, was: " + output
 			);
+		}
+	}
+
+	@Test
+	void tcpPortThatClosesWithoutSendingIsNotReady() throws IOException {
+		try (ServerSocket serverSocket = new ServerSocket(0)) {
+			int port = serverSocket.getLocalPort();
+			Thread server = new Thread(() -> {
+				try (Socket socket = serverSocket.accept()) {
+					// Close right away, without writing a byte.
+				} catch (IOException e) {
+					// Ignore: the test asserts on the client output.
+				}
+			});
+			server.setDaemon(true);
+			server.start();
+
+			assertFalse(
+					WaitForPorts
+							.isTcpReady(URI.create("tcp://localhost:" + port))
+			);
+			assertEquals("Disconnected" + System.lineSeparator(), output());
 		}
 	}
 
@@ -150,6 +214,175 @@ public class WaitForPortsTests {
 			);
 		} finally {
 			server.stop(0);
+		}
+	}
+
+	@Test
+	void httpEndpointWithUnexpectedStatusIsNotReady() throws Exception {
+		HttpServer server = HttpServer
+				.create(new InetSocketAddress("localhost", 0), 0);
+		server.createContext("/", exchange -> {
+			exchange.sendResponseHeaders(503, -1);
+			exchange.close();
+		});
+		server.start();
+		try {
+			int port = server.getAddress().getPort();
+
+			assertFalse(
+					WaitForPorts
+							.isHttpReady(URI.create("http://localhost:" + port))
+			);
+			assertEquals(
+					"Status code is 503" + System.lineSeparator(),
+					output()
+			);
+		} finally {
+			server.stop(0);
+		}
+	}
+
+	@Test
+	void expectedStatusCodeDefaultsTo200() {
+		assertEquals(
+				200,
+				WaitForPorts.expectedStatusCode(URI.create("http://localhost"))
+		);
+		assertEquals(
+				200,
+				WaitForPorts.expectedStatusCode(URI.create("http://localhost#"))
+		);
+	}
+
+	@Test
+	void expectedStatusCodeComesFromTheFragment() {
+		assertEquals(
+				404,
+				WaitForPorts
+						.expectedStatusCode(URI.create("http://localhost#404"))
+		);
+	}
+
+	@Test
+	void unreachableEndpointIsReportedAndKeptForTheNextRound()
+			throws Exception {
+		URI uri = URI.create("tcp://localhost:" + closedPort());
+		Collection<URI> endpoints = new HashSet<>(List.of(uri));
+
+		WaitForPorts.probe(endpoints);
+
+		assertEquals(Set.of(uri), endpoints);
+		String prefix = "Testing " + uri + " : ";
+		String output = output();
+		assertTrue(
+				output.startsWith(prefix),
+				() -> "Expected endpoint to be tested, was: " + output
+		);
+		assertFalse(
+				output.substring(prefix.length()).isBlank(),
+				() -> "Expected a failure message, was: " + output
+		);
+	}
+
+	@Test
+	void urisComeFromArgumentsWhenGiven() {
+		Path configFile = writeConfigFile("tcp://ignored:1");
+
+		assertEquals(
+				List.of("http://localhost:1", "tcp://localhost:2"),
+				List.copyOf(
+						WaitForPorts.uris(
+								new String[] { "http://localhost:1",
+										"tcp://localhost:2" },
+								configFile
+						)
+				)
+		);
+	}
+
+	@Test
+	void urisComeFromTheConfigFileWhenThereAreNoArguments() {
+		Path configFile = writeConfigFile(
+				"tcp://localhost:1",
+				"http://localhost:2"
+		);
+
+		assertEquals(
+				List.of("tcp://localhost:1", "http://localhost:2"),
+				List.copyOf(WaitForPorts.uris(NO_ARGS, configFile))
+		);
+	}
+
+	@Test
+	void urisFallBackToTheDefaultWithoutArgumentsOrConfigFile() {
+		Path configFile = tempDir.resolve("missing");
+
+		assertEquals(
+				List.of("http://localhost:8080"),
+				List.copyOf(WaitForPorts.uris(NO_ARGS, configFile))
+		);
+	}
+
+	@Test
+	void unreadableConfigFileFailsInsteadOfFallingBack() {
+		Path configFile = tempDir;
+
+		UncheckedIOException exception = assertThrows(
+				UncheckedIOException.class,
+				() -> WaitForPorts.uris(NO_ARGS, configFile)
+		);
+		assertEquals(IOException.class, exception.getCause().getClass());
+	}
+
+	@Test
+	void endpointsAreParsedAndDeduplicated() {
+		Path configFile = tempDir.resolve("missing");
+
+		assertEquals(
+				Set.of(
+						URI.create("tcp://localhost:1"),
+						URI.create("http://localhost:2")
+				),
+				Set.copyOf(
+						WaitForPorts.endpoints(
+								new String[] { "tcp://localhost:1",
+										"http://localhost:2",
+										"tcp://localhost:1" },
+								configFile
+						)
+				)
+		);
+	}
+
+	@Test
+	void mainRestoresTheInterruptStatusWhenCancelled() throws Exception {
+		String uri = "tcp://localhost:" + closedPort();
+		AtomicBoolean interrupted = new AtomicBoolean();
+		Thread waiting = new Thread(() -> {
+			WaitForPorts.main(new String[] { uri });
+			interrupted.set(Thread.currentThread().isInterrupted());
+		});
+		waiting.setDaemon(true);
+		waiting.start();
+
+		Thread.sleep(200);
+		waiting.interrupt();
+		waiting.join(Duration.ofSeconds(10));
+
+		assertFalse(waiting.isAlive(), "Expected the wait to be cancelled");
+		assertTrue(interrupted.get(), "Expected the interrupt to be restored");
+		assertEquals(
+				"Interrupted while waiting for ports" + System.lineSeparator(),
+				errorOutput()
+		);
+	}
+
+	private Path writeConfigFile(String... lines) {
+		try {
+			return Files
+					.write(tempDir.resolve(".wait-for-ports"), List.of(lines));
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
 		}
 	}
 

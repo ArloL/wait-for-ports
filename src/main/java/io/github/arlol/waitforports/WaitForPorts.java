@@ -35,24 +35,26 @@ public class WaitForPorts {
 			System.exit(0);
 		}
 		try {
-			waitForEndpoints(endpoints(args));
+			waitForEndpoints(endpoints(args, CONFIG_FILE));
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			System.err.println("Interrupted while waiting for ports");
 		}
 	}
 
-	private static Collection<URI> endpoints(String[] args) {
-		return uris(args).stream().map(URI::create).collect(Collectors.toSet());
+	static Collection<URI> endpoints(String[] args, Path configFile) {
+		return uris(args, configFile).stream()
+				.map(URI::create)
+				.collect(Collectors.toSet());
 	}
 
-	private static Collection<String> uris(String[] args) {
+	static Collection<String> uris(String[] args, Path configFile) {
 		if (args.length > 0) {
 			return Arrays.asList(args);
 		}
-		if (Files.isReadable(CONFIG_FILE)) {
+		if (Files.isReadable(configFile)) {
 			try {
-				return Files.readAllLines(CONFIG_FILE);
+				return Files.readAllLines(configFile);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
@@ -75,8 +77,7 @@ public class WaitForPorts {
 		}
 	}
 
-	private static void probe(Collection<URI> endpoints)
-			throws InterruptedException {
+	static void probe(Collection<URI> endpoints) throws InterruptedException {
 		Iterator<URI> iterator = endpoints.iterator();
 		while (iterator.hasNext()) {
 			URI uri = iterator.next();
@@ -93,8 +94,7 @@ public class WaitForPorts {
 
 	// True when the endpoint can be dropped: it answered as expected, or its
 	// scheme is not supported.
-	private static boolean isReady(URI uri)
-			throws IOException, InterruptedException {
+	static boolean isReady(URI uri) throws IOException, InterruptedException {
 		String scheme = uri.getScheme();
 		if ("tcp".equals(scheme) || "telnet".equals(scheme)) {
 			return isTcpReady(uri);
@@ -106,7 +106,7 @@ public class WaitForPorts {
 		return true;
 	}
 
-	private static boolean isTcpReady(URI uri) throws IOException {
+	static boolean isTcpReady(URI uri) throws IOException {
 		try (Socket socket = new Socket()) {
 			socket.connect(
 					new InetSocketAddress(uri.getHost(), uri.getPort()),
@@ -124,7 +124,7 @@ public class WaitForPorts {
 		return true;
 	}
 
-	private static boolean isHttpReady(URI uri)
+	static boolean isHttpReady(URI uri)
 			throws IOException, InterruptedException {
 		// HTTP 1.1 since the fallback to 1.1 times out with yarn server
 		// ¯\_(ツ)_/¯
@@ -145,7 +145,7 @@ public class WaitForPorts {
 		return true;
 	}
 
-	private static int expectedStatusCode(URI uri) {
+	static int expectedStatusCode(URI uri) {
 		String fragment = uri.getFragment();
 		if (fragment != null && !fragment.isBlank()) {
 			return Integer.parseInt(fragment);
