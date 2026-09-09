@@ -187,6 +187,9 @@ jobs:
         zip -r "artifacts/${ARTIFACT}-windows-${NEW_VERSION}.zip" "${ARTIFACT}-windows-${NEW_VERSION}/"
         zip -r "artifacts/${ARTIFACT}-linux-${NEW_VERSION}.zip" "${ARTIFACT}-linux-${NEW_VERSION}/"
         zip -r "artifacts/${ARTIFACT}-macos-${NEW_VERSION}.zip" "${ARTIFACT}-macos-${NEW_VERSION}/"
+        mv "${ARTIFACT}-windows-${NEW_VERSION}/${ARTIFACT}-windows-${NEW_VERSION}.exe" "artifacts/${ARTIFACT}-windows.exe"
+        mv "${ARTIFACT}-linux-${NEW_VERSION}/${ARTIFACT}-linux-${NEW_VERSION}" "artifacts/${ARTIFACT}-linux"
+        mv "${ARTIFACT}-macos-${NEW_VERSION}/${ARTIFACT}-macos-${NEW_VERSION}" "artifacts/${ARTIFACT}-macos"
     - name: Create Release
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
