@@ -218,7 +218,8 @@ jobs:
       with:
         cache: maven
         distribution: temurin
-        java-version-file: .tool-versions
+        # renovate: datasource=java-version depName=java
+        java-version: 25.0.4
     - name: Publish to GitHub Packages Apache Maven
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
